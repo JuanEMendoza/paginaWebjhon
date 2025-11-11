@@ -6,14 +6,6 @@
     <title>Panel de Administración - Tienda</title>
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="config.js"></script>
-    <script src="auth.js"></script>
-    <script>
-        // Verificar autenticación antes de cargar la página
-        if (typeof window.auth === 'undefined' || !window.auth.isAuthenticated()) {
-            window.location.href = 'login.html';
-        }
-    </script>
 </head>
 <body>
     <!-- Sidebar -->
@@ -518,7 +510,39 @@
 
     <script src="config.js"></script>
     <script src="auth.js"></script>
-    <script src="script.js"></script>
+    <script>
+        // Verificar autenticación antes de cargar script.js
+        (function() {
+            // Esperar a que auth.js se cargue completamente
+            function loadMainScript() {
+                if (typeof window.auth === 'undefined') {
+                    // Si auth.js aún no está cargado, esperar un poco más
+                    setTimeout(loadMainScript, 100);
+                    return;
+                }
+                
+                if (!window.auth.isAuthenticated()) {
+                    window.location.href = 'login.html';
+                    return;
+                }
+                
+                // Cargar script.js solo si está autenticado
+                const script = document.createElement('script');
+                script.src = 'script.js';
+                script.onerror = function() {
+                    console.error('Error al cargar script.js');
+                };
+                document.body.appendChild(script);
+            }
+            
+            // Iniciar carga cuando el DOM esté listo
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', loadMainScript);
+            } else {
+                loadMainScript();
+            }
+        })();
+    </script>
 </body>
 </html>
 

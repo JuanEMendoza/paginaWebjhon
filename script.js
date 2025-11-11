@@ -1,12 +1,18 @@
-// Configuración de la API
-const API_BASE_URL = typeof CONFIG !== 'undefined' ? CONFIG.API_BASE_URL : 'https://apijhon.onrender.com';
-const ENDPOINTS = typeof CONFIG !== 'undefined' ? CONFIG.ENDPOINTS : {
-    usuarios: '/api/usuarios',
-    productos: '/api/productos',
-    pedidos: '/api/pedidos',
-    pedido_detalle: '/api/pedido_detalle',
-    pagos: '/api/pagos'
-};
+// Configuración de la API (evitar redeclaración)
+if (typeof window.API_BASE_URL === 'undefined') {
+    window.API_BASE_URL = typeof CONFIG !== 'undefined' ? CONFIG.API_BASE_URL : 'https://apijhon.onrender.com';
+}
+if (typeof window.APP_ENDPOINTS === 'undefined') {
+    window.APP_ENDPOINTS = typeof CONFIG !== 'undefined' ? CONFIG.ENDPOINTS : {
+        usuarios: '/api/usuarios',
+        productos: '/api/productos',
+        pedidos: '/api/pedidos',
+        pedido_detalle: '/api/pedido_detalle',
+        pagos: '/api/pagos'
+    };
+}
+const API_BASE_URL = window.API_BASE_URL;
+const ENDPOINTS = window.APP_ENDPOINTS;
 
 // Estado de la aplicación
 const appState = {

@@ -1,5 +1,6 @@
-// Configuración de la API
-const CONFIG = {
+// Configuración de la API (evitar redeclaración)
+if (typeof window.CONFIG === 'undefined') {
+    window.CONFIG = {
     API_BASE_URL: 'https://apijhon.onrender.com', // URL base de la API
     
     // Configuración de endpoints de la API
@@ -27,7 +28,9 @@ const CONFIG = {
     // Configuración de moneda
     CURRENCY: 'USD',
     CURRENCY_SYMBOL: '$'
-};
+    };
+}
+const CONFIG = window.CONFIG;
 
 // Exportar configuración (si se usa como módulo)
 if (typeof module !== 'undefined' && module.exports) {

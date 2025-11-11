@@ -1,8 +1,14 @@
-// Configuración de la API
-const API_BASE_URL = typeof CONFIG !== 'undefined' ? CONFIG.API_BASE_URL : 'https://apijhon.onrender.com';
-const ENDPOINTS = typeof CONFIG !== 'undefined' ? CONFIG.ENDPOINTS : {
-    usuarios: '/api/usuarios'
-};
+// Configuración de la API (evitar redeclaración)
+if (typeof window.API_BASE_URL === 'undefined') {
+    window.API_BASE_URL = typeof CONFIG !== 'undefined' ? CONFIG.API_BASE_URL : 'https://apijhon.onrender.com';
+}
+if (typeof window.AUTH_ENDPOINTS === 'undefined') {
+    window.AUTH_ENDPOINTS = typeof CONFIG !== 'undefined' ? CONFIG.ENDPOINTS : {
+        usuarios: '/api/usuarios'
+    };
+}
+const API_BASE_URL = window.API_BASE_URL;
+const ENDPOINTS = window.AUTH_ENDPOINTS;
 
 // Claves para localStorage
 const AUTH_TOKEN_KEY = 'admin_auth_token';
