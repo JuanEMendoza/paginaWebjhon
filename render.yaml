@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: admin-panel
+    env: docker
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    plan: free
+    healthCheckPath: /
+    envVars:
+      - key: NODE_ENV
+        value: production
+

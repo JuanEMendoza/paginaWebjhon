@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Administración - Tienda</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="config.js"></script>
+    <script src="auth.js"></script>
+    <script>
+        // Verificar autenticación antes de cargar la página
+        if (typeof window.auth === 'undefined' || !window.auth.isAuthenticated()) {
+            window.location.href = 'login.html';
+        }
+    </script>
+</head>
+<body>
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <h2><i class="fas fa-store"></i> Admin Panel</h2>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="#" class="nav-item active" data-section="dashboard">
+                <i class="fas fa-home"></i> Dashboard
+            </a>
+            <a href="#" class="nav-item" data-section="users">
+                <i class="fas fa-users"></i> Usuarios
+            </a>
+            <a href="#" class="nav-item" data-section="products">
+                <i class="fas fa-box"></i> Productos
+            </a>
+            <a href="#" class="nav-item" data-section="orders">
+                <i class="fas fa-shopping-cart"></i> Pedidos
+            </a>
+            <a href="#" class="nav-item" data-section="reports">
+                <i class="fas fa-chart-bar"></i> Reportes
+            </a>
+        </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Header -->
+        <header class="header">
+            <button class="menu-toggle" id="menuToggle">
+                <i class="fas fa-bars"></i>
+            </button>
+            <h1 id="pageTitle">Dashboard</h1>
+            <div class="header-actions">
+                <button class="btn-icon" title="Notificaciones">
+                    <i class="fas fa-bell"></i>
+                </button>
+                <div class="user-profile" id="userProfile">
+                    <span id="userName">Administrador</span>
+                    <i class="fas fa-user-circle"></i>
+                </div>
+                <button class="btn btn-secondary btn-sm" id="logoutBtn" title="Cerrar Sesión">
+                    <i class="fas fa-sign-out-alt"></i> Salir
+                </button>
+            </div>
+        </header>
+
+        <!-- Dashboard Section -->
+        <section id="dashboard" class="section active">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon blue">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3 id="totalUsers">0</h3>
+                        <p>Usuarios Registrados</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon green">
+                        <i class="fas fa-box"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3 id="totalProducts">0</h3>
+                        <p>Productos</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon orange">
+                        <i class="fas fa-shopping-cart"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3 id="totalOrders">0</h3>
+                        <p>Pedidos</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon purple">
+                        <i class="fas fa-dollar-sign"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3 id="totalSales">$0</h3>
+                        <p>Ventas Totales</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="dashboard-content">
+                <div class="card">
+                    <div class="card-header">
+                        <h3>Pedidos Recientes</h3>
+                    </div>
+                    <div class="card-body">
+                        <div id="recentOrders" class="recent-orders">
+                            <p class="empty-state">No hay pedidos recientes</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-header">
+                        <h3>Productos Más Vendidos</h3>
+                    </div>
+                    <div class="card-body">
+                        <div id="topProducts" class="top-products">
+                            <p class="empty-state">No hay datos disponibles</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Users Section -->
+        <section id="users" class="section">
+            <div class="section-header">
+                <h2>Gestión de Usuarios</h2>
+                <button class="btn btn-primary" id="addUserBtn">
+                    <i class="fas fa-plus"></i> Agregar Usuario
+                </button>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <div class="search-filter">
+                        <input type="text" id="userSearch" class="search-input" placeholder="Buscar usuario...">
+                        <select id="userFilter" class="filter-select">
+                            <option value="all">Todos</option>
+                            <option value="active">Activos</option>
+                            <option value="inactive">Inactivos</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="table-container">
+                        <table class="data-table" id="usersTable">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Nombre</th>
+                                    <th>Email</th>
+                                    <th>Teléfono</th>
+                                    <th>Rol</th>
+                                    <th>Estado</th>
+                                    <th>Fecha Registro</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="usersTableBody">
+                                <tr>
+                                    <td colspan="8" class="empty-state">Cargando usuarios...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Products Section -->
+        <section id="products" class="section">
+            <div class="section-header">
+                <h2>Gestión de Productos</h2>
+                <button class="btn btn-primary" id="addProductBtn">
+                    <i class="fas fa-plus"></i> Agregar Producto
+                </button>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <div class="search-filter">
+                        <input type="text" id="productSearch" class="search-input" placeholder="Buscar producto...">
+                        <select id="productFilter" class="filter-select">
+                            <option value="all">Todos</option>
+                            <option value="in_stock">En Stock</option>
+                            <option value="out_of_stock">Sin Stock</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="table-container">
+                        <table class="data-table" id="productsTable">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Imagen</th>
+                                    <th>Nombre</th>
+                                    <th>Descripción</th>
+                                    <th>Precio</th>
+                                    <th>Stock</th>
+                                    <th>Ventas</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="productsTableBody">
+                                <tr>
+                                    <td colspan="8" class="empty-state">Cargando productos...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Orders Section -->
+        <section id="orders" class="section">
+            <div class="section-header">
+                <h2>Gestión de Pedidos</h2>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <div class="search-filter">
+                        <input type="text" id="orderSearch" class="search-input" placeholder="Buscar pedido...">
+                        <select id="orderStatusFilter" class="filter-select">
+                            <option value="all">Todos los estados</option>
+                            <option value="pending">Pendiente</option>
+                            <option value="preparing">En Preparación</option>
+                            <option value="shipped">Enviado</option>
+                            <option value="delivered">Entregado</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="table-container">
+                        <table class="data-table" id="ordersTable">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Usuario</th>
+                                    <th>Fecha</th>
+                                    <th>Total</th>
+                                    <th>Estado</th>
+                                    <th>Dirección</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="ordersTableBody">
+                                <tr>
+                                    <td colspan="7" class="empty-state">Cargando pedidos...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Reports Section -->
+        <section id="reports" class="section">
+            <div class="section-header">
+                <h2>Reportes y Estadísticas</h2>
+                <div class="header-actions">
+                    <button class="btn btn-secondary" id="exportExcelBtn">
+                        <i class="fas fa-file-excel"></i> Exportar Excel
+                    </button>
+                    <button class="btn btn-secondary" id="exportPdfBtn">
+                        <i class="fas fa-file-pdf"></i> Exportar PDF
+                    </button>
+                </div>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon blue">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3 id="reportTotalSales">$0</h3>
+                        <p>Ventas Totales</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon green">
+                        <i class="fas fa-shopping-bag"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3 id="reportTotalOrders">0</h3>
+                        <p>Total Pedidos</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon orange">
+                        <i class="fas fa-user-check"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3 id="reportActiveUsers">0</h3>
+                        <p>Usuarios Activos</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon purple">
+                        <i class="fas fa-box-open"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3 id="reportTotalProducts">0</h3>
+                        <p>Productos Activos</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="dashboard-content">
+                <div class="card">
+                    <div class="card-header">
+                        <h3>Productos Más Vendidos</h3>
+                    </div>
+                    <div class="card-body">
+                        <div id="reportTopProducts" class="top-products">
+                            <p class="empty-state">No hay datos disponibles</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-header">
+                        <h3>Estadísticas de Ventas</h3>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="salesChart" width="400" height="200"></canvas>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Modals -->
+    <!-- User Modal -->
+    <div id="userModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="userModalTitle">Agregar Usuario</h3>
+                <button class="modal-close" id="closeUserModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="userForm">
+                    <input type="hidden" id="userId">
+                    <div class="form-group">
+                        <label for="userName">Nombre Completo</label>
+                        <input type="text" id="userName" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="userEmail">Email</label>
+                        <input type="email" id="userEmail" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="userPhone">Teléfono</label>
+                        <input type="tel" id="userPhone" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label for="userAddress">Dirección</label>
+                        <input type="text" id="userAddress" class="form-control" placeholder="Calle, número, ciudad">
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="userRole">Rol</label>
+                            <select id="userRole" class="form-control">
+                                <option value="cliente">Cliente</option>
+                                <option value="administrador">Administrador</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="userStatus">Estado</label>
+                            <select id="userStatus" class="form-control">
+                                <option value="active">Activo</option>
+                                <option value="inactive">Inactivo</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="userPassword">Contraseña</label>
+                        <input type="password" id="userPassword" class="form-control" placeholder="Dejar vacío al editar para mantener la contraseña actual">
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-secondary" id="cancelUserBtn">Cancelar</button>
+                        <button type="submit" class="btn btn-primary">Guardar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Product Modal -->
+    <div id="productModal" class="modal">
+        <div class="modal-content modal-large">
+            <div class="modal-header">
+                <h3 id="productModalTitle">Agregar Producto</h3>
+                <button class="modal-close" id="closeProductModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="productForm">
+                    <input type="hidden" id="productId">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="productName">Nombre del Producto</label>
+                            <input type="text" id="productName" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="productPrice">Precio</label>
+                            <input type="number" id="productPrice" class="form-control" step="0.01" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="productDescription">Descripción</label>
+                        <textarea id="productDescription" class="form-control" rows="4" required></textarea>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="productStock">Stock</label>
+                            <input type="number" id="productStock" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="productImage">Imagen URL</label>
+                            <input type="url" id="productImage" class="form-control">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="productImageFile">O subir imagen</label>
+                        <input type="file" id="productImageFile" class="form-control" accept="image/*">
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-secondary" id="cancelProductBtn">Cancelar</button>
+                        <button type="submit" class="btn btn-primary">Guardar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Order Detail Modal -->
+    <div id="orderDetailModal" class="modal">
+        <div class="modal-content modal-large">
+            <div class="modal-header">
+                <h3>Detalles del Pedido #<span id="orderDetailId"></span></h3>
+                <button class="modal-close" id="closeOrderDetailModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div id="orderDetailContent">
+                    <div class="order-info">
+                        <h4>Información del Pedido</h4>
+                        <p><strong>Usuario:</strong> <span id="orderDetailUser"></span></p>
+                        <p><strong>Fecha:</strong> <span id="orderDetailDate"></span></p>
+                        <p><strong>Estado:</strong> <span id="orderDetailStatus"></span></p>
+                        <p><strong>Total:</strong> <span id="orderDetailTotal"></span></p>
+                    </div>
+                    <div class="order-info">
+                        <h4>Dirección de Envío</h4>
+                        <p id="orderDetailAddress"></p>
+                    </div>
+                    <div class="order-info">
+                        <h4>Productos</h4>
+                        <div id="orderDetailProducts"></div>
+                    </div>
+                    <div class="form-group">
+                        <label for="orderStatusChange">Cambiar Estado</label>
+                        <select id="orderStatusChange" class="form-control">
+                            <option value="pending">Pendiente</option>
+                            <option value="preparing">En Preparación</option>
+                            <option value="shipped">Enviado</option>
+                            <option value="delivered">Entregado</option>
+                        </select>
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-secondary" id="cancelOrderDetailBtn">Cerrar</button>
+                        <button type="button" class="btn btn-primary" id="updateOrderStatusBtn">Actualizar Estado</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- User Purchase History Modal -->
+    <div id="userHistoryModal" class="modal">
+        <div class="modal-content modal-large">
+            <div class="modal-header">
+                <h3>Historial de Compras - <span id="userHistoryName"></span></h3>
+                <button class="modal-close" id="closeUserHistoryModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div id="userHistoryContent">
+                    <p class="empty-state">Cargando historial...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Confirm Delete Modal -->
+    <div id="confirmModal" class="modal">
+        <div class="modal-content modal-small">
+            <div class="modal-header">
+                <h3>Confirmar Eliminación</h3>
+                <button class="modal-close" id="closeConfirmModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p id="confirmMessage">¿Está seguro de que desea eliminar este elemento?</p>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" id="cancelConfirmBtn">Cancelar</button>
+                    <button type="button" class="btn btn-danger" id="confirmDeleteBtn">Eliminar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="config.js"></script>
+    <script src="auth.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
+
