@@ -152,10 +152,19 @@ async function apiRequest(endpoint, method = 'GET', body = null) {
 // Inicialización
 document.addEventListener('DOMContentLoaded', () => {
     // Verificar autenticación antes de inicializar
-    if (typeof window.auth !== 'undefined' && window.auth.requireAuth()) {
-        initializeApp();
-        setupAuth();
+    if (typeof window.auth === 'undefined') {
+        window.location.href = 'login.html';
+        return;
     }
+    
+    if (!window.auth.isAuthenticated()) {
+        window.location.href = 'login.html';
+        return;
+    }
+    
+    // Si está autenticado, inicializar la aplicación
+    initializeApp();
+    setupAuth();
 });
 
 // Configurar funcionalidades de autenticación
@@ -775,11 +784,15 @@ function displayUsers(users) {
         return;
     }
 
-    tbody.innerHTML = users.map(user => {
+    // Limpiar tabla
+    tbody.innerHTML = '';
+    
+    // Crear filas con event listeners
+    users.forEach(user => {
         const roleBadge = user.role === 'administrador' ? 'badge-info' : 'badge-secondary';
         const roleLabel = user.role === 'administrador' ? 'Administrador' : 'Cliente';
-        return `
-        <tr>
+        const row = document.createElement('tr');
+        row.innerHTML = `
             <td>${user.id}</td>
             <td>${user.name || '-'}</td>
             <td>${user.email || '-'}</td>
@@ -789,25 +802,55 @@ function displayUsers(users) {
             <td>${formatDate(user.createdAt)}</td>
             <td>
                 <div class="action-buttons">
-                    <button class="action-btn view" onclick="viewUserHistory(${user.id})" title="Ver historial">
+                    <button class="action-btn view" data-action="history" data-id="${user.id}" title="Ver historial">
                         <i class="fas fa-history"></i>
                     </button>
-                    <button class="action-btn edit" onclick="editUser(${user.id})" title="Editar">
+                    <button class="action-btn edit" data-action="edit" data-id="${user.id}" title="Editar">
                         <i class="fas fa-edit"></i>
                     </button>
                     <button class="action-btn ${user.status === 'active' ? 'delete' : 'edit'}" 
-                            onclick="${user.status === 'active' ? `deactivateUser(${user.id})` : `activateUser(${user.id})`}" 
+                            data-action="${user.status === 'active' ? 'deactivate' : 'activate'}" 
+                            data-id="${user.id}"
                             title="${user.status === 'active' ? 'Desactivar' : 'Activar'}">
                         <i class="fas fa-${user.status === 'active' ? 'ban' : 'check'}"></i>
                     </button>
-                    <button class="action-btn delete" onclick="confirmDelete('user', ${user.id})" title="Eliminar">
+                    <button class="action-btn delete" data-action="delete" data-type="user" data-id="${user.id}" title="Eliminar">
                         <i class="fas fa-trash"></i>
                     </button>
                 </div>
             </td>
-        </tr>
         `;
-    }).join('');
+        
+        // Agregar event listeners
+        const buttons = row.querySelectorAll('[data-action]');
+        buttons.forEach(btn => {
+            btn.addEventListener('click', function() {
+                const action = this.getAttribute('data-action');
+                const id = parseInt(this.getAttribute('data-id'));
+                const type = this.getAttribute('data-type');
+                
+                switch(action) {
+                    case 'history':
+                        viewUserHistory(id);
+                        break;
+                    case 'edit':
+                        editUser(id);
+                        break;
+                    case 'activate':
+                        activateUser(id);
+                        break;
+                    case 'deactivate':
+                        deactivateUser(id);
+                        break;
+                    case 'delete':
+                        confirmDelete(type || 'user', id);
+                        break;
+                }
+            });
+        });
+        
+        tbody.appendChild(row);
+    });
 }
 
 function filterUsers() {
@@ -876,8 +919,13 @@ function displayProducts(products) {
         return;
     }
 
-    tbody.innerHTML = products.map(product => `
-        <tr>
+    // Limpiar tabla
+    tbody.innerHTML = '';
+    
+    // Crear filas con event listeners
+    products.forEach(product => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
             <td>${product.id}</td>
             <td><img src="${product.image || 'https://via.placeholder.com/50'}" alt="${product.name}"></td>
             <td>${product.name || '-'}</td>
@@ -887,16 +935,34 @@ function displayProducts(products) {
             <td>${product.sales || 0}</td>
             <td>
                 <div class="action-buttons">
-                    <button class="action-btn edit" onclick="editProduct(${product.id})" title="Editar">
+                    <button class="action-btn edit" data-action="edit" data-id="${product.id}" title="Editar">
                         <i class="fas fa-edit"></i>
                     </button>
-                    <button class="action-btn delete" onclick="confirmDelete('product', ${product.id})" title="Eliminar">
+                    <button class="action-btn delete" data-action="delete" data-type="product" data-id="${product.id}" title="Eliminar">
                         <i class="fas fa-trash"></i>
                     </button>
                 </div>
             </td>
-        </tr>
-    `).join('');
+        `;
+        
+        // Agregar event listeners
+        const buttons = row.querySelectorAll('[data-action]');
+        buttons.forEach(btn => {
+            btn.addEventListener('click', function() {
+                const action = this.getAttribute('data-action');
+                const id = parseInt(this.getAttribute('data-id'));
+                const type = this.getAttribute('data-type');
+                
+                if (action === 'edit') {
+                    editProduct(id);
+                } else if (action === 'delete') {
+                    confirmDelete(type, id);
+                }
+            });
+        });
+        
+        tbody.appendChild(row);
+    });
 }
 
 function filterProducts() {
@@ -952,10 +1018,14 @@ function displayOrders(orders) {
         return;
     }
 
-    tbody.innerHTML = orders.map(order => {
+    // Limpiar tabla
+    tbody.innerHTML = '';
+    
+    // Crear filas con event listeners
+    orders.forEach(order => {
         const statusClass = getStatusBadgeClass(order.status);
-        return `
-        <tr>
+        const row = document.createElement('tr');
+        row.innerHTML = `
             <td>#${order.id}</td>
             <td>${order.userName || '-'}</td>
             <td>${formatDate(order.date)}</td>
@@ -964,14 +1034,24 @@ function displayOrders(orders) {
             <td>${order.address?.substring(0, 30) || ''}${order.address && order.address.length > 30 ? '...' : ''}</td>
             <td>
                 <div class="action-buttons">
-                    <button class="action-btn view" onclick="viewOrderDetail(${order.id})" title="Ver detalles">
+                    <button class="action-btn view" data-action="view" data-id="${order.id}" title="Ver detalles">
                         <i class="fas fa-eye"></i>
                     </button>
                 </div>
             </td>
-        </tr>
         `;
-    }).join('');
+        
+        // Agregar event listener
+        const viewBtn = row.querySelector('[data-action="view"]');
+        if (viewBtn) {
+            viewBtn.addEventListener('click', function() {
+                const id = parseInt(this.getAttribute('data-id'));
+                viewOrderDetail(id);
+            });
+        }
+        
+        tbody.appendChild(row);
+    });
 }
 
 function filterOrders() {
